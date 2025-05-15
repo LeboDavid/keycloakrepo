@@ -1,9 +1,7 @@
 name: Keycloak Docker CI/CD
 
 on:
-  push:
-    branches:
-      - main
+   workplace_dispatch
 
 jobs:
   build-and-deploy:
@@ -59,8 +57,8 @@ jobs:
       uses: carlosthe19916/keycloak-action@0.7
       with:
         server: http://your-server-ip:8080/auth
-        username: ${{ admin }}
-        password: ${{ admin }}
+        username: ${{ secrets.KEYCLOAK_ADMIN_USER }}
+        password: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
         kcadm: |
           create realms -f ./keycloak/realm.json
           create clients -r DoosyFramework -f ./keycloak/client.json
