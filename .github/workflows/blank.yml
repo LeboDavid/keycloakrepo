@@ -1,7 +1,7 @@
 name: Keycloak Docker CI/CD
 
 on:
-   workplace_dispatch
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
