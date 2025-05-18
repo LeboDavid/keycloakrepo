@@ -8,7 +8,7 @@ on:
         required: true
 
 env:
-      DOCKER_HUB_REPO: ${{ secrets.DOCKER_DEV_USERNAME }}/Keycloak_Repo
+      DOCKER_HUB_REPO: ${{ secrets.DOCKER_DEV_USERNAME }}/keycloakrepo
       IMAGE_TAG: latest
 jobs:
   build-and-deploy:
