@@ -41,7 +41,6 @@ jobs:
             -e KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN_USER }} \
             -e KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }} \
             ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak:latest
-
     - name: Wait for Keycloak to be ready
       run: |
         for i in {1..30}; do
