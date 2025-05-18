@@ -2,9 +2,7 @@ name: Keycloak Docker CI/CD
 
 on:
   workflow_dispatch:
-    
-      
-        
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -25,16 +23,10 @@ jobs:
     - name: Build and push Keycloak image
       uses: docker/build-push-action@v3
       with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak:latest  # Ensure this secret is set
+        context: .
+        push: true
+        tags: ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak:latest
 
-    - name: Deploy Keycloak container on server
-      uses: appleboy/ssh-action@v0.1.7
-      with:
-          script: |
-            docker pull ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak:latest  # Changed to DOCKER_DEV_USERNAME
-            # ...
     - name: Deploy Keycloak container on server
       uses: appleboy/ssh-action@v0.1.7
       with:
@@ -42,13 +34,13 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/keycloak:latest
+          docker pull ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak:latest
           docker stop keycloak || true
           docker rm keycloak || true
           docker run -d --name keycloak -p 8080:8080 \
             -e KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN_USER }} \
             -e KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }} \
-            ${{ secrets.DOCKER_USERNAME }}/keycloak:latest
+            ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak:latest
 
     - name: Wait for Keycloak to be ready
       run: |
