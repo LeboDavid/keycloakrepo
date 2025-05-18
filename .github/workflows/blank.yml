@@ -6,6 +6,10 @@ on:
       version:
         description: 'Version number'
         required: true
+
+env:
+      DOCKER_HUB_REPO: ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak
+      IMAGE_TAG: latest
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
