@@ -24,11 +24,11 @@ FROM quay.io/keycloak/keycloak:latest
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
 # Set environment variables for database connection and hostname
-ENV KC_DB=postgres
-ENV KC_DB_URL=<DBURL>            # Replace with your database URL
-ENV KC_DB_USERNAME=<DBUSERNAME>  # Replace with your database username
-ENV KC_DB_PASSWORD=<DBPASSWORD>  # Replace with your database password
-ENV KC_HOSTNAME=localhost
+#ENV KC_DB=postgres
+#ENV KC_DB_URL=<DBURL>            # Replace with your database URL
+#ENV KC_DB_USERNAME=<DBUSERNAME>  # Replace with your database username
+#ENV KC_DB_PASSWORD=<DBPASSWORD>  # Replace with your database password
+#ENV KC_HOSTNAME=localhost
 
 # Set the entrypoint to start Keycloak
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
