@@ -25,10 +25,16 @@ jobs:
     - name: Build and push Keycloak image
       uses: docker/build-push-action@v3
       with:
-        context: .
-        push: true
-        tags: ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak:latest
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak:latest  # Ensure this secret is set
 
+    - name: Deploy Keycloak container on server
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+          script: |
+            docker pull ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak:latest  # Changed to DOCKER_DEV_USERNAME
+            # ...
     - name: Deploy Keycloak container on server
       uses: appleboy/ssh-action@v0.1.7
       with:
