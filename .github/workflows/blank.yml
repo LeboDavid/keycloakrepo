@@ -2,7 +2,10 @@ name: Keycloak Docker CI/CD
 
 on:
   workflow_dispatch:
-
+   inputs:
+      version:
+        description: 'Version number'
+        required: true
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -20,11 +23,15 @@ jobs:
         username: ${{ secrets.DOCKER_DEV_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and push Keycloak image
-      uses: docker/build-push-action@v3
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
       with:
-        context: .
-        push: true
+          context: ./src
+          file: ./src/Doosy.API/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
 
     - name: Deploy Keycloak container on server
       uses: appleboy/ssh-action@v0.1.7
