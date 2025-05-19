@@ -44,12 +44,13 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
+          ${{ secrets.DOCKER_DEV_USERNAME }}/keycloakrepo
           docker stop keycloak || true
           docker rm keycloak || true
           docker run -d --name keycloak -p 8080:8080 \
             -e KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN_USER }} \
             -e KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }} \
-            ${{ secrets.DOCKER_DEV_USERNAME }}/keycloak:latest
+            ${{ secrets.DOCKER_DEV_USERNAME }}/keyrepocloak:latest
     - name: Wait for Keycloak to be ready
       run: |
         for i in {1..30}; do
