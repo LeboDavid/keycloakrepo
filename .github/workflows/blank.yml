@@ -72,7 +72,21 @@ jobs:
             -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
             -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
-
+    - name: Verify Deployment
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
+        script: |
+          echo "=== Network Status ==="
+          docker network inspect keycloak-network
+          echo "=== Port Listener ==="
+          netstat -tulpn | grep 8081
+          echo "=== Keycloak Env ===" 
+          docker exec keycloak env | grep KC_
+          echo "=== Database Connection ==="
+          docker exec postgres psql -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_DATABASE }} -c "SELECT 1"
     - name: Wait for Keycloak to be ready
       run: |
         for i in {1..60}; do
