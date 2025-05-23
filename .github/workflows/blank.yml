@@ -57,6 +57,8 @@ jobs:
             -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
             -v postgres_data:/var/lib/postgresql/data \
             --network keycloak-network \
+            -v keycloak-postgres-data:/var/lib/postgresql/data
+
             postgres:13
 
           # Start Keycloak container
