@@ -2,14 +2,15 @@ name: Keycloak Docker CI/CD
 
 on:
   workflow_dispatch:
-   inputs:
+    inputs:
       version:
         description: 'Version number'
         required: true
 
 env:
-      DOCKER_HUB_REPO: ${{ secrets.DOCKER_DEV_USERNAME }}/keycloakrepo
-      IMAGE_TAG: latest
+  DOCKER_HUB_REPO: ${{ secrets.DOCKER_DEV_USERNAME }}/keycloakrepo
+  IMAGE_TAG: latest
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -30,31 +31,52 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: |
-            ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
-            ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: |
+          ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
+          ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
 
-    - name: Deploy Keycloak container on server
+    - name: Deploy Keycloak and PostgreSQL containers
       uses: appleboy/ssh-action@v0.1.7
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
-          ${{ secrets.DOCKER_DEV_USERNAME }}/keycloakrepo
+          # Create network if not exists
+          docker network create keycloak-network || true
+          
+          # Start PostgreSQL container
+          docker stop postgres || true
+          docker rm postgres || true
+          docker run -d --name postgres \
+            -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
+            -e POSTGRES_USER=${{ secrets.DB_USER }} \
+            -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -v postgres_data:/var/lib/postgresql/data \
+            --network keycloak-network \
+            postgres:13
+
+          # Start Keycloak container
           docker stop keycloak || true
           docker rm keycloak || true
-          docker run -d --name keycloak -p 8080:8080 \
+          docker run -d --name keycloak \
+            --network keycloak-network \
+            -p 8080:8080 \
             -e KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN_USER }} \
             -e KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }} \
-            ${{ secrets.DOCKER_DEV_USERNAME }}/keyrepocloak:latest
+            -e KC_DB=postgres \
+            -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
+            -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
+            -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
+
     - name: Wait for Keycloak to be ready
       run: |
         for i in {1..30}; do
-          if curl -s http://your-server-ip:8080/auth/realms/master; then
+          if curl -s http://${{ secrets.SERVER_HOST }}:8080/realms/master; then
             echo "Keycloak is up"
             break
           fi
@@ -65,7 +87,7 @@ jobs:
     - name: Configure Keycloak realms and clients
       uses: carlosthe19916/keycloak-action@0.7
       with:
-        server: http://your-server-ip:8080/auth
+        server: http://${{ secrets.SERVER_HOST }}:8080
         username: ${{ secrets.KEYCLOAK_ADMIN_USER }}
         password: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
         kcadm: |
