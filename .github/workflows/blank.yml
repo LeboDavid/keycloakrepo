@@ -74,7 +74,7 @@ jobs:
     - name: Wait for Keycloak to be ready
       run: |
         for i in {1..60}; do  # Increased to 60 attempts (10 minutes)
-          if curl -sSf http://${{ secrets.SERVER_HOST }}:8080/health/ready; then
+          if curl -sSf http://${{ secrets.SERVER_HOST }}:8081/health/ready; then
             echo "Keycloak is up"
             break
           fi
@@ -89,7 +89,7 @@ jobs:
     - name: Configure Keycloak realms and clients
       uses: carlosthe19916/keycloak-action@0.7
       with:
-        server: http://${{ secrets.SERVER_HOST }}:8080
+        server: http://${{ secrets.SERVER_HOST }}:8081
         username: ${{ secrets.KEYCLOAK_ADMIN_USER }}
         password: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
         kcadm: |
