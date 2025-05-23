@@ -41,17 +41,10 @@ jobs:
     - name: Deploy containers
       uses: appleboy/ssh-action@v0.1.7
       with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
-          # Start PostgreSQL with health check
-          docker run -d --name postgres \
-            --health-cmd="pg_isready -U ${{ secrets.DB_USER }}" \
-            --health-interval=5s \
-            --health-timeout=2s \
-            --health-retries=5 \
-            -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
-            -v keycloak-postgres-data:/var/lib/postgresql/data \
-            --network keycloak-network \
-            postgres:13
           
           # Start PostgreSQL container
            docker run -d --name postgres \
@@ -75,21 +68,7 @@ jobs:
             -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
             -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
-    - name: Verify Deployment
-      uses: appleboy/ssh-action@v0.1.7
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
-        script: |
-          echo "=== Network Status ==="
-          docker network inspect keycloak-network
-          echo "=== Port Listener ==="
-          netstat -tulpn | grep 8081
-          echo "=== Keycloak Env ===" 
-          docker exec keycloak env | grep KC_
-          echo "=== Database Connection ==="
-          docker exec postgres psql -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_DATABASE }} -c "SELECT 1"
+    
           
     - name: Wait for Keycloak to be ready
       run: |
