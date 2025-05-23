@@ -49,16 +49,12 @@ jobs:
           docker network create keycloak-network || true
           
           # Start PostgreSQL container
-          docker stop postgres || true
-          docker rm postgres || true
-          docker run -d --name postgres \
+           docker run -d --name postgres \
             -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
             -e POSTGRES_USER=${{ secrets.DB_USER }} \
             -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -v postgres_data:/var/lib/postgresql/data \
+            -v keycloak-postgres-data:/var/lib/postgresql/data \  # Only one volume
             --network keycloak-network \
-            -v keycloak-postgres-data:/var/lib/postgresql/data
-
             postgres:13
 
           # Start Keycloak container
@@ -77,14 +73,18 @@ jobs:
 
     - name: Wait for Keycloak to be ready
       run: |
-        for i in {1..30}; do
-          if curl -s http://${{ secrets.SERVER_HOST }}:8080/realms/master; then
+        for i in {1..60}; do  # Increased to 60 attempts (10 minutes)
+          if curl -sSf http://${{ secrets.SERVER_HOST }}:8080/health/ready; then
             echo "Keycloak is up"
             break
           fi
-          echo "Waiting for Keycloak..."
+          echo "Waiting for Keycloak... ($i/60)"
+          # Add container logs inspection
+          ssh -i ${{ secrets.SERVER_DEV_PRIVATEKEY }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "docker logs keycloak --tail 50 2>/dev/null || true"
           sleep 10
         done
+
 
     - name: Configure Keycloak realms and clients
       uses: carlosthe19916/keycloak-action@0.7
