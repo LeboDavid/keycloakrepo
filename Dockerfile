@@ -25,7 +25,7 @@ COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
 # Set environment variables for database connection and hostname
 ENV KC_DB=postgres
-ENV KC_DB_URL=dbc:postgresql://keycloak-postgres:5432/keycloak       
+ENV KC_DB_URL=jdbc:postgresql://keycloak-postgres:5432/keycloak       
 ENV KC_DB_USERNAME=lebo_user  # Replace with your database username
 ENV KC_DB_PASSWORD=DB_PASSWORD  # Replace with your database password
 ENV KC_HOSTNAME=localhost
