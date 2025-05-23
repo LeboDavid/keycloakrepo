@@ -90,6 +90,7 @@ jobs:
           docker exec keycloak env | grep KC_
           echo "=== Database Connection ==="
           docker exec postgres psql -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_DATABASE }} -c "SELECT 1"
+          
     - name: Wait for Keycloak to be ready
       run: |
         for i in {1..60}; do
