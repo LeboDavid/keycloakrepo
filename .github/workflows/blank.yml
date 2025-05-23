@@ -62,7 +62,7 @@ jobs:
           docker rm keycloak || true
           docker run -d --name keycloak \
             --network keycloak-network \
-            -p 8081:8081 \
+            -p 8081:8080 \
             -e KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN_USER }} \
             -e KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }} \
             -e KC_DB=postgres \
