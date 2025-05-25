@@ -71,7 +71,7 @@ jobs:
             -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
             -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
-            
+            start-dev
     - name: Setup SSH key
       run: |
             mkdir -p ~/.ssh
