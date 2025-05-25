@@ -90,7 +90,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no \
           -i ~/.ssh/server_key \
            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-          "  docker logs keycloak --tail 50 2>/dev/null || true"
+           "docker logs keycloak --tail 50 2>/dev/null || true"
            sleep 10
             done
            echo "Keycloak failed to start within timeout"
