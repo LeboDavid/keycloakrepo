@@ -10,6 +10,9 @@ on:
 env:
   DOCKER_HUB_REPO: ${{ secrets.DOCKER_DEV_USERNAME }}/keycloakrepo
   IMAGE_TAG: latest
+  SSH_PRIVATE_KEY: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
+  shell: bash
+
 
 jobs:
   build-and-deploy:
@@ -68,25 +71,31 @@ jobs:
             -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
             -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
-    
+            
+    - name: Setup SSH key
+      run: |
+            mkdir -p ~/.ssh
+            echo "$SSH_PRIVATE_KEY" > ~/.ssh/server_key
+            chmod 600 ~/.ssh/server_key
+ 
           
     - name: Wait for Keycloak to be ready
       run: |
-        for i in {1..60}; do
-          if curl -sSf "http://${{ secrets.SERVER_HOST }}:8081/health/ready"; then  # Added quotes
-            echo "Keycloak is up"
-            exit 0
+          for i in {1..60}; do
+          if curl -sSf "http://${{ secrets.SERVER_HOST }}:8081/health/ready"; then
+          echo "Keycloak is up"
+          exit 0
           fi
           echo "Waiting for Keycloak... ($i/60)"
           ssh -o StrictHostKeyChecking=no \
-            -i <(echo "${{ secrets.SERVER_DEV_PRIVATEKEY }}") \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "docker logs keycloak --tail 50 2>/dev/null || true"
-          sleep 10
-        done
-        echo "Keycloak failed to start within timeout"
-        exit 1
-
+          -i ~/.ssh/server_key \
+           ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+          "  docker logs keycloak --tail 50 2>/dev/null || true"
+           sleep 10
+            done
+           echo "Keycloak failed to start within timeout"
+           exit 1
+ 
 
     - name: Configure Keycloak realms and clients
       uses: carlosthe19916/keycloak-action@0.7
