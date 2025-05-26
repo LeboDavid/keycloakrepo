@@ -5,7 +5,6 @@ FROM quay.io/keycloak/keycloak:latest AS builder
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 ENV KC_DB=postgres
-ENV KC_DB_URL=jdbc:postgresql://postgres:5432/$DB_NAME  
 ENV KC_DB_USERNAME=$DB_USER
 ENV KC_DB_PASSWORD=$DB_PASSWORD
 
