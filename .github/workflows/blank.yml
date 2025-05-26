@@ -34,12 +34,17 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: |
-          ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
-          ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
+       context: .
+       file: ./Dockerfile
+       push: true
+       build-args: |
+          DB_NAME=${{ secrets.DB_DATABASE }}
+          DB_USER=${{ secrets.DB_USER }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+       tags: |
+             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
+             ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
+
 
     - name: Deploy containers
       uses: appleboy/ssh-action@v0.1.7
@@ -57,21 +62,13 @@ jobs:
                 --network keycloak-network \
                  postgres:13
 
-                  # Start Keycloak container
-                  docker stop keycloak || true
-                  docker rm keycloak || true
-                  docker run -d --name keycloak \
-                  --network keycloak-network \
-                  -p 8081:8080 \
-                  -e KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN_USER }} \
-                  -e KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }} \
-                  -e KC_DB=postgres \
-                  -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
-                  -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
-                  -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-                   ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start
-    - name: Setup SSH key
-      run: |
+                docker run -d --name keycloak \
+                --network keycloak-network \
+                -p 8081:8080 \
+                -e KC_HOSTNAME=your-domain.com \  
+                 ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
+ 
+    run: |
             mkdir -p ~/.ssh
             echo "$SSH_PRIVATE_KEY" > ~/.ssh/server_key
             chmod 600 ~/.ssh/server_key
