@@ -80,9 +80,11 @@ jobs:
             -e KC_HOSTNAME=localhost \
             -e KC_DB=postgres \
             -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
+            -e KC_CACHE_STACK=local \
+            -e KC_PROXY=edge \
+            -e KC_HOSTNAME_STRICT_HTTPS=false \
             -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
             -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -e KC_CACHE_STACK=local \
 
             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
 
@@ -100,12 +102,12 @@ jobs:
            exit 0
            fi
            echo "Waiting for Keycloak... ($i/120)"
-           ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "docker logs keycloak --tail 50 2>/dev/null || true"
+           ssh -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+           "docker logs *** --tail 50 2>/dev/null || true"
            sleep 5
            done
            echo "Keycloak failed to start within timeout"
-           exit 1
-
+           exit 1 
 
     - name: Configure Keycloak realms and clients
       uses: carlosthe19916/keycloak-action@0.7
