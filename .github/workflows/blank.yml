@@ -33,68 +33,78 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-      context: .
-      file: ./Dockerfile
-      push: true
-      build-args: |
-                  DB_NAME=${{ secrets.DB_DATABASE }}
-                  DB_USER=${{ secrets.DB_USER }}
-                  DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-      tags: |
-            ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
-            ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
-      
+        context: .
+        file: ./Dockerfile
+        push: true
+        build-args: |
+          DB_NAME=${{ secrets.DB_DATABASE }}
+          DB_USER=${{ secrets.DB_USER }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+        tags: |
+          ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
+          ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
+
     - name: Deploy containers
       uses: appleboy/ssh-action@v0.1.7
       with:
-      host: ${{ secrets.SERVER_HOST }}
-      username: ${{ secrets.SERVER_USER }}
-      key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
-      script: |
-              docker network inspect keycloak-network || docker network create keycloak-network
-              docker stop postgres || true
-              docker rm postgres || true
-              docker run -d --name postgres \
-              -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
-              -e POSTGRES_USER=${{ secrets.DB_USER }} \
-              -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -v keycloak-postgres-data:/var/lib/postgresql/data \
-              --network keycloak-network \
-               postgres:13
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
+        script: |
+          docker network inspect keycloak-network || docker network create keycloak-network
+          
+          docker stop postgres || true
+          docker rm postgres || true
+          docker run -d --name postgres \
+            -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
+            -e POSTGRES_USER=${{ secrets.DB_USER }} \
+            -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -v keycloak-postgres-data:/var/lib/postgresql/data \
+            --network keycloak-network \
+            postgres:13
 
-               docker stop keycloak || true
-               docker rm keycloak || true
-               docker run -d --name keycloak \
-              --network keycloak-network \
-              -p 8081:8080 \
-              -p 9000:9000 \
-              -e KC_HTTP_ENABLED=true \
-              -e KC_HTTP_PORT=8080 \
-              -e KC_HTTP_MANAGEMENT_PORT=9000 \
-              -e KC_HOSTNAME=localhost \
-              -e KC_DB=postgres \
-              -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
-              -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
-              -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-               ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
-    
+          docker stop keycloak || true
+          docker rm keycloak || true
+          docker run -d --name keycloak \
+            --network keycloak-network \
+            -p 8081:8080 \
+            -p 9000:9000 \
+            -e KC_HTTP_ENABLED=true \
+            -e KC_HTTP_PORT=8080 \
+            -e KC_HTTP_MANAGEMENT_PORT=9000 \
+            -e KC_HOSTNAME=localhost \
+            -e KC_DB=postgres \
+            -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
+            -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
+            -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
+
     - name: Setup SSH key
       run: |
-           mkdir -p ~/.ssh
-           echo "${{ secrets.SERVER_DEV_PRIVATEKEY }}" > ~/.ssh/server_key
-           chmod 600 ~/.ssh/server_key
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SERVER_DEV_PRIVATEKEY }}" > ~/.ssh/server_key
+        chmod 600 ~/.ssh/server_key
 
     - name: Wait for Keycloak to be ready
       run: |
-           for i in {1..120}; do
-           if curl -sSf "http://${{ secrets.SERVER_HOST }}:8081/health/ready"; then
-           echo "Keycloak is up"
-           exit 0
-           fi
-           echo "Waiting for Keycloak... ($i/120)"
-           ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "docker logs keycloak --tail 50 2>/dev/null || true"
-           sleep 5
-           done
-           echo "Keycloak failed to start within timeout"
-           exit 1
-    
+        for i in {1..120}; do
+          if curl -sSf "http://${{ secrets.SERVER_HOST }}:8081/health/ready"; then
+            echo "Keycloak is up"
+            exit 0
+          fi
+          echo "Waiting for Keycloak... ($i/120)"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "docker logs keycloak --tail 50 2>/dev/null || true"
+          sleep 5
+        done
+        echo "Keycloak failed to start within timeout"
+        exit 1
+
+    - name: Configure Keycloak realms and clients
+      uses: carlosthe19916/keycloak-action@0.7
+      with:
+        server: http://${{ secrets.SERVER_HOST }}:8081
+        username: ${{ secrets.KEYCLOAK_ADMIN_USER }}
+        password: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+        kcadm: |
+          create realms -f ./keycloak/realm.json
+          create clients -r DoosyFramework -f ./keycloak/client.json
