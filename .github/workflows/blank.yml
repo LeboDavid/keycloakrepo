@@ -52,13 +52,13 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
+          docker network inspect keycloak-network || docker network create keycloak-network
           docker stop postgres || true
           docker rm postgres || true
           docker run -d --name postgres \
             -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
             -e POSTGRES_USER=${{ secrets.DB_USER }} \
             -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }}
             -v keycloak-postgres-data:/var/lib/postgresql/data \
             --network keycloak-network \
             postgres:13
@@ -70,9 +70,9 @@ jobs:
            -p 8081:8080 \
            -e KC_HOSTNAME=your-domain.com \
            -e KC_DB=postgres \
-           -e KC_DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME} \
-           -e KC_DB_USERNAME=${DB_USER} \
-           -e KC_DB_PASSWORD=${DB_PASSWORD} \
+           -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
+           -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
+           -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
           
 
