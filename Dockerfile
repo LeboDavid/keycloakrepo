@@ -17,4 +17,4 @@ FROM quay.io/keycloak/keycloak:latest
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
 # Runtime environment variables (use defaults or override via workflow)
-ENV KC_HOSTNAME=postgres
+ENV KC_HOSTNAME=localhost
