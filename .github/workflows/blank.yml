@@ -65,11 +65,16 @@ jobs:
             
             docker stop keycloak || true
             docker rm keycloak || true
-          docker run -d --name keycloak \
-            --network keycloak-network \
-            -p 8081:8080 \
-            -e KC_HOSTNAME=your-domain.com \
+            docker run -d --name keycloak \
+           --network keycloak-network \
+           -p 8081:8080 \
+           -e KC_HOSTNAME=your-domain.com \
+           -e KC_DB=postgres \
+           -e KC_DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME} \
+           -e KC_DB_USERNAME=${DB_USER} \
+           -e KC_DB_PASSWORD=${DB_PASSWORD} \
             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
+          
 
     - name: Setup SSH key
       run: |
