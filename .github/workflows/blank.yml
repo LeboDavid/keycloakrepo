@@ -44,7 +44,6 @@ jobs:
           ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
           ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
 
-
     - name: Deploy containers
       uses: appleboy/ssh-action@v0.1.7
       with:
@@ -62,26 +61,20 @@ jobs:
             -v keycloak-postgres-data:/var/lib/postgresql/data \
             --network keycloak-network \
             postgres:13
-            
-            docker stop keycloak || true
-            docker rm keycloak || true
-            docker run -d --name keycloak \
-           --network keycloak-network \
-           -p 8081:8080 \
-           -e KC_HTTP_ENABLED=true \
-           -e KC_HOSTNAME=localhost \
-           -e KC_DB=postgres \
-           -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
-           -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
-           -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
-          
 
-    - name: Setup SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/server_key
-        chmod 600 ~/.ssh/server_key
+          docker stop keycloak || true
+          docker rm keycloak || true
+          docker run -d --name keycloak \
+            --network keycloak-network \
+            -p 8081:8080 \
+            -e KC_HTTP_ENABLED=true \
+            -e KC_HTTP_PORT=8080 \
+            -e KC_HOSTNAME=localhost \
+            -e KC_DB=postgres \
+            -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
+            -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
+            -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
 
     - name: Wait for Keycloak to be ready
       run: |
@@ -97,12 +90,4 @@ jobs:
         echo "Keycloak failed to start within timeout"
         exit 1
 
-    - name: Configure Keycloak realms and clients
-      uses: carlosthe19916/keycloak-action@0.7
-      with:
-        server: http://${{ secrets.SERVER_HOST }}:8081
-        username: ${{ secrets.KEYCLOAK_ADMIN_USER }}
-        password: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
-        kcadm: |
-          create realms -f ./keycloak/realm.json
-          create clients -r DoosyFramework -f ./keycloak/client.json
+    
