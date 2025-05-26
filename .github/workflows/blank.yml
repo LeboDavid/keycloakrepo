@@ -41,36 +41,35 @@ jobs:
           DB_USER=${{ secrets.DB_USER }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
         tags: |
-          ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
-          ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
+             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
+             ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
+          
+              docker network inspect keycloak-network || docker network create keycloak-network
+              docker stop postgres || true
+              docker rm postgres || true
+              docker run -d --name postgres \
+              -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
+              -e POSTGRES_USER=${{ secrets.DB_USER }} \
+              -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -v keycloak-postgres-data:/var/lib/postgresql/data \
+              --network keycloak-network \
+               postgres:13
 
-          docker network inspect keycloak-network || docker network create keycloak-network
-
-          docker stop postgres || true
-          docker rm postgres || true
-          docker run -d --name postgres \
-          -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
-          -e POSTGRES_USER=${{ secrets.DB_USER }} \
-          -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          -v keycloak-postgres-data:/var/lib/postgresql/data \
-          --network keycloak-network \
-          postgres:13
-
-          docker stop keycloak || true
-          docker rm keycloak || true
-          docker run -d --name keycloak \
-          --network keycloak-network \
-          -p 8081:8080 \
-          -p 9000:9000 \
-          -e KC_HTTP_ENABLED=true \
-          -e KC_HTTP_PORT=8080 \
-          -e KC_HTTP_MANAGEMENT_PORT=9000 \
-          -e KC_HOSTNAME=localhost \
-          -e KC_DB=postgres \
-          -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
-          -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
-          -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-           ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
+               docker stop keycloak || true
+               docker rm keycloak || true
+               docker run -d --name keycloak \
+              --network keycloak-network \
+              -p 8081:8080 \
+              -p 9000:9000 \
+              -e KC_HTTP_ENABLED=true \
+              -e KC_HTTP_PORT=8080 \
+              -e KC_HTTP_MANAGEMENT_PORT=9000 \
+              -e KC_HOSTNAME=localhost \
+              -e KC_DB=postgres \
+              -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
+              -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
+              -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
 
     - name: Setup SSH key
       run: |
