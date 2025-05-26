@@ -76,18 +76,23 @@ jobs:
             -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
 
+    - name: Setup SSH key
+      run: |
+           mkdir -p ~/.ssh
+           echo "${{ secrets.SERVER_DEV_PRIVATEKEY }}" > ~/.ssh/server_key
+           chmod 600 ~/.ssh/server_key
+
     - name: Wait for Keycloak to be ready
       run: |
-        for i in {1..120}; do
-          if curl -sSf "http://${{ secrets.SERVER_HOST }}:8081/health/ready"; then
-            echo "Keycloak is up"
-            exit 0
-          fi
-          echo "Waiting for Keycloak... ($i/120)"
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "docker logs keycloak --tail 50 2>/dev/null || true"
-          sleep 5
-        done
-        echo "Keycloak failed to start within timeout"
-        exit 1
-
+           for i in {1..120}; do
+           if curl -sSf "http://${{ secrets.SERVER_HOST }}:8081/health/ready"; then
+           echo "Keycloak is up"
+           exit 0
+           fi
+           echo "Waiting for Keycloak... ($i/120)"
+           ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "docker logs keycloak --tail 50 2>/dev/null || true"
+           sleep 5
+           done
+           echo "Keycloak failed to start within timeout"
+           exit 1
     
