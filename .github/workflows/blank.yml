@@ -13,7 +13,6 @@ env:
   SSH_PRIVATE_KEY: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
   shell: bash
 
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -34,16 +33,16 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-       context: .
-       file: ./Dockerfile
-       push: true
-       build-args: |
+        context: .
+        file: ./Dockerfile
+        push: true
+        build-args: |
           DB_NAME=${{ secrets.DB_DATABASE }}
           DB_USER=${{ secrets.DB_USER }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-       tags: |
-             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
-             ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
+        tags: |
+          ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
+          ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
 
 
     - name: Deploy containers
@@ -53,39 +52,39 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
-          
-                docker run -d --name postgres \
-                -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
-                -e POSTGRES_USER=${{ secrets.DB_USER }} \
-                -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-                -v keycloak-postgres-data:/var/lib/postgresql/data \
-                --network keycloak-network \
-                 postgres:13
+          docker run -d --name postgres \
+            -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
+            -e POSTGRES_USER=${{ secrets.DB_USER }} \
+            -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -v keycloak-postgres-data:/var/lib/postgresql/data \
+            --network keycloak-network \
+            postgres:13
 
-                docker run -d --name keycloak \
-                --network keycloak-network \
-                -p 8081:8080 \
-                -e KC_HOSTNAME=your-domain.com \  
-                 ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
- 
-    run: |
-            mkdir -p ~/.ssh
-            echo "$SSH_PRIVATE_KEY" > ~/.ssh/server_key
-            chmod 600 ~/.ssh/server_key
- 
-          
-            for i in {1..120}; do
-            if curl -sSf "http://${{ secrets.SERVER_HOST }}:8081/health/ready"; then
+          docker run -d --name keycloak \
+            --network keycloak-network \
+            -p 8081:8080 \
+            -e KC_HOSTNAME=your-domain.com \
+            ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
+
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/server_key
+        chmod 600 ~/.ssh/server_key
+
+    - name: Wait for Keycloak to be ready
+      run: |
+        for i in {1..120}; do
+          if curl -sSf "http://${{ secrets.SERVER_HOST }}:8081/health/ready"; then
             echo "Keycloak is up"
             exit 0
-            fi
-            echo "Waiting for Keycloak... ($i/120)"
-            ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "docker logs keycloak --tail 50 2>/dev/null || true"
-            sleep 5
-            done
-            echo "Keycloak failed to start within timeout"
-            exit 1
- 
+          fi
+          echo "Waiting for Keycloak... ($i/120)"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "docker logs keycloak --tail 50 2>/dev/null || true"
+          sleep 5
+        done
+        echo "Keycloak failed to start within timeout"
+        exit 1
 
     - name: Configure Keycloak realms and clients
       uses: carlosthe19916/keycloak-action@0.7
