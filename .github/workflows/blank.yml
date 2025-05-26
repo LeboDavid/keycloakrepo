@@ -68,7 +68,8 @@ jobs:
             docker run -d --name keycloak \
            --network keycloak-network \
            -p 8081:8080 \
-           -e KC_HOSTNAME=your-domain.com \
+           -e KC_HTTP_ENABLED=true \
+           -e KC_HOSTNAME=localhost \
            -e KC_DB=postgres \
            -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
            -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
