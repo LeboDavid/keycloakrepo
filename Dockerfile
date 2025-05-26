@@ -1,34 +1,20 @@
-# Stage 1: Builder stage to prepare Keycloak with customizations
+# Stage 1: Builder stage for optimized build
 FROM quay.io/keycloak/keycloak:latest AS builder
 
-# Enable health and metrics support
+# Set build-time configurations (REQUIRED)
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
-
-# Configure database vendor (example: Postgres)
 ENV KC_DB=postgres
+ENV KC_DB_URL=jdbc:postgresql://postgres:5432/$DB_NAME  # Match service name in workflow
+ENV KC_DB_USERNAME=$DB_USER
+ENV KC_DB_PASSWORD=$DB_PASSWORD
 
 WORKDIR /opt/keycloak
-
-# (Optional) Generate a self-signed certificate for HTTPS (for demo purposes)
-RUN keytool -genkeypair -storepass password -storetype PKCS12 -keyalg RSA -keysize 2048 \
-    -dname "CN=server" -alias server -ext "SAN:c=DNS:localhost,IP:127.0.0.1" -keystore conf/server.keystore
-
-# Build Keycloak with the above settings
 RUN /opt/keycloak/bin/kc.sh build
 
-# Stage 2: Final image
+# Stage 2: Runtime image
 FROM quay.io/keycloak/keycloak:latest
-
-# Copy the built Keycloak from the builder stage
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
-# Set environment variables for database connection and hostname
-ENV KC_DB=postgres
-ENV KC_DB_URL=jdbc:postgresql://keycloak-postgres:5432/keycloak       
-ENV KC_DB_USERNAME=lebo_user 
-ENV KC_DB_PASSWORD=DB_PASSWORD  
+# Runtime environment variables (use defaults or override via workflow)
 ENV KC_HOSTNAME=localhost
-
-# Set the entrypoint to start Keycloak
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
