@@ -98,7 +98,7 @@ jobs:
     - name: Wait for Keycloak to be ready
       run: |
            for i in {1..120}; do
-           if ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+           if curl -sSf "http://${{ secrets.SERVER_HOST }}:9000/health/ready"; then
            "curl -k -sSf https://localhost:9000/health/ready"; then
            echo "Keycloak is up"
            exit 0
