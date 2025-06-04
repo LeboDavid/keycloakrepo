@@ -44,6 +44,12 @@ jobs:
           ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
           ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }}
 
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        printf '%s\n' "${{ secrets.SERVER_DEV_PRIVATEKEY }}" > ~/.ssh/server_key
+        chmod 600 ~/.ssh/server_key
+
     - name: Deploy containers
       uses: appleboy/ssh-action@v0.1.7
       with:
@@ -51,62 +57,53 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
-              docker network inspect keycloak-network || docker network create keycloak-network
-              docker stop postgres || true
-              docker rm postgres || true
-              docker run -d --name postgres \
-              -p 25060:5432 \ 
-              -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
-              -e POSTGRES_USER=${{ secrets.DB_USER }} \
-              -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -v keycloak-postgres-data:/var/lib/postgresql/data \
-              --network keycloak-network \
-              postgres:13
-              
-              docker rm -f keycloak || true 
-              docker run -d --name keycloak \
-              --network keycloak-network \
-              -p 8081:8080 \
-              -p 9000:9000 \
-              -e KC_HTTP_ENABLED=true \
-              -e KC_HTTPS_ENABLED=false \
-              -e KC_HTTP_PORT=8080 \
-              -e KC_HTTP_MANAGEMENT_PORT=9000 \
-              -e KC_HTTP_MANAGEMENT_INTERFACE=0.0.0.0 \
-              -e KC_HOSTNAME_STRICT=false \
-              -e KC_LOG_LEVEL=DEBUG \
-              -e KC_HOSTNAME= http://db-postgresql-nyc3-70728-do-user-22939413-0.i.db.ondigitalocean.com \
-              -e KC_DB=postgres \
-              -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
-              -e KC_PROXY=edge \
-              -e KC_HOSTNAME_STRICT_HTTPS=false \
-              -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
-              -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-               ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
-
-
-    - name: Setup SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SERVER_DEV_PRIVATEKEY }}" > ~/.ssh/server_key
-        chmod 600 ~/.ssh/server_key
+          set -e
+          docker network inspect keycloak-network || docker network create keycloak-network
+          docker stop postgres || true
+          docker rm postgres || true
+          docker run -d --name postgres \
+            -p 25060:5432 \
+            -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
+            -e POSTGRES_USER=${{ secrets.DB_USER }} \
+            -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -v keycloak-postgres-data:/var/lib/postgresql/data \
+            --network keycloak-network \
+            postgres:13
+          
+          docker rm -f keycloak || true 
+          docker run -d --name keycloak \
+            --network keycloak-network \
+            -p 8081:8080 \
+            -p 9000:9000 \
+            -e KC_HTTP_ENABLED=true \
+            -e KC_HTTPS_ENABLED=false \
+            -e KC_HTTP_PORT=8080 \
+            -e KC_HTTP_MANAGEMENT_PORT=9000 \
+            -e KC_HTTP_MANAGEMENT_INTERFACE=0.0.0.0 \
+            -e KC_HOSTNAME_STRICT=false \
+            -e KC_LOG_LEVEL=DEBUG \
+            -e KC_HOSTNAME=${{ secrets.SERVER_HOST }} \  # Use actual domain/IP
+            -e KC_DB=postgres \
+            -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
+            -e KC_PROXY=edge \
+            -e KC_HOSTNAME_STRICT_HTTPS=false \
+            -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
+            -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
 
     - name: Wait for Keycloak to be ready
       run: |
-            for i in {1..120}; do
-            if ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "curl -sSf http://localhost:9000/health/ready"; then
+        for i in {1..24}; do
+          if ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "curl -sSf http://localhost:8081/health/ready"; then
             echo "Keycloak is up"
             exit 0
-            fi
-            echo "Waiting for Keycloak... ($i/120)"
-            ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "docker logs keycloak --tail 50 2>/dev/null || true"
-            sleep 5
-            done
-            echo "Keycloak failed to start within timeout"
-            exit 1
-
+          fi
+          echo "Waiting for Keycloak... ($i/24)"
+          sleep 5
+        done
+        echo "Keycloak failed to start within timeout"
+        exit 1
 
     - name: Configure Keycloak realms and clients
       uses: carlosthe19916/keycloak-action@0.7
