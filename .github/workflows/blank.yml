@@ -78,7 +78,7 @@ jobs:
             -e KC_HTTP_MANAGEMENT_INTERFACE=0.0.0.0 \
             -e KC_HOSTNAME_STRICT=false \
             -e KC_LOG_LEVEL=DEBUG \
-            -e KC_HOSTNAME=${{ secrets.SERVER_HOST }} \  # Use actual domain/IP
+            -e KC_HOSTNAME=${{ secrets.SERVER_HOST }} \  
             -e KC_DB=postgres \
             -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
             -e KC_PROXY=edge \
