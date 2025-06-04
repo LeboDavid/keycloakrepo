@@ -57,9 +57,7 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
-          set -e
-          docker network inspect keycloak-network || docker network create keycloak-network
-          docker stop postgres || true
+        
           docker run -d --name postgres \
             -p 25060:5432 \
             -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
