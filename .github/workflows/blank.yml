@@ -66,8 +66,8 @@ jobs:
             -v keycloak-postgres-data:/var/lib/postgresql/data \
             --network keycloak-network \
             postgres:13
-          docker stop  postgres || true
-          docker rm -f postgres || true
+          docker stop  keycloak || true
+          docker rm -f keycloak || true
           docker run -d --name keycloak \
             --network keycloak-network \
             -p 8081:8080 \
