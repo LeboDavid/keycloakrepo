@@ -67,7 +67,6 @@ jobs:
             --network keycloak-network \
             postgres:13
           
-          docker rm -f keycloak || true 
           docker run -d --name keycloak \
             --network keycloak-network \
             -p 8081:8080 \
