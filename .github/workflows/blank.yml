@@ -66,15 +66,15 @@ jobs:
               docker run -d --name keycloak \
               --network keycloak-network \
               -p 8081:8080 \
-              -p 9000:9000 \
+              -p 25060:25060 \
               -e KC_HTTP_ENABLED=true \
               -e KC_HTTPS_ENABLED=false \
               -e KC_HTTP_PORT=8080 \
-              -e KC_HTTP_MANAGEMENT_PORT=9000 \
+              -e KC_HTTP_MANAGEMENT_PORT=25060 \
               -e KC_HTTP_MANAGEMENT_INTERFACE=0.0.0.0 \
               -e KC_HOSTNAME_STRICT=false \
               -e KC_LOG_LEVEL=DEBUG \
-              -e KC_HOSTNAME=localhost \
+              -e KC_HOSTNAME= http://db-postgresql-nyc3-70728-do-user-22939413-0.i.db.ondigitalocean.com \
               -e KC_DB=postgres \
               -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
               -e KC_PROXY=edge \
