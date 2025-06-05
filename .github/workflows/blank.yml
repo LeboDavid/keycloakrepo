@@ -73,7 +73,7 @@ jobs:
             -p 8080:8080 \
             -p 9000:9000 \
             -e KC_HTTP_ENABLED=true \
-            -e KC_HTTPS_ENABLED=false \
+            -e KC_HTTPS_ENABLED=true \
             -e KC_HTTP_PORT=8080 \
             -e KC_HTTP_MANAGEMENT_PORT=9000 \
             -e KC_HTTP_MANAGEMENT_INTERFACE=0.0.0.0 \
