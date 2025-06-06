@@ -83,7 +83,7 @@ jobs:
           -e KC_HOSTNAME_STRICT_HTTPS=false \
           -e KC_DB_USERNAME=*** \
           -e KC_DB_PASSWORD=*** \
-          ***/keycloakrepo:latest start --optimized
+           keycloakrepo:latest start --optimized
 
 
 
