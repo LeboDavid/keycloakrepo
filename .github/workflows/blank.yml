@@ -81,8 +81,8 @@ jobs:
           -e KC_DB_URL=jdbc:postgresql://postgres:5432/*** \
           -e KC_PROXY=edge \
           -e KC_HOSTNAME_STRICT_HTTPS=false \
-          -e KC_DB_USERNAME=*** \
-          -e KC_DB_PASSWORD=*** \
+          -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
+          -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
 
 
