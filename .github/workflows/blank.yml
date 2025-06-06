@@ -65,6 +65,8 @@ jobs:
             -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
             --network keycloak-network \
             postgres:13
+          docker stop keycloak
+          docker rm -f keycloak
           docker run -d --name keycloak \
           --network keycloak-network \
           -p 8180:8080 \
