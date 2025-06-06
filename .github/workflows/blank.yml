@@ -102,12 +102,4 @@ jobs:
             echo "Keycloak failed to start within timeout"
             exit 1
 
-    - name: Configure Keycloak realms and clients
-      uses: carlosthe19916/keycloak-action@0.7
-      with:
-        server: http://${{ secrets.SERVER_HOST }}:8081
-        username: ${{ secrets.KEYCLOAK_ADMIN_USER }}
-        password: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
-        kcadm: |
-          create realms -f ./keycloak/realm.json
-          create clients -r DoosyFramework -f ./keycloak/client.json
+   
