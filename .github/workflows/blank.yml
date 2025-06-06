@@ -80,7 +80,7 @@ jobs:
           -e KC_LOG_LEVEL=DEBUG \
           -e KC_HOSTNAME=${{secrets.SERVER_HOST}} \
           -e KC_DB=postgres \
-          -e KC_DB_URL=jdbc:postgresql://postgres:5432/*** \
+          -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
           -e KC_PROXY=edge \
           -e KC_HOSTNAME_STRICT_HTTPS=false \
           -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
