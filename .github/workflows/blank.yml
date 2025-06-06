@@ -63,7 +63,6 @@ jobs:
             -e POSTGRES_DB=${{ secrets.DB_DATABASE }} \
             -e POSTGRES_USER=${{ secrets.DB_USER }} \
             -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -v keycloak-postgres-data:/var/lib/postgresql/data \
             --network keycloak-network \
             postgres:13
           docker stop  keycloak || true
