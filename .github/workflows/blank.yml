@@ -68,24 +68,28 @@ jobs:
           docker stop  keycloak || true
           docker rm -f keycloak || true
           docker run -d --name keycloak \
-            --network keycloak-network \
-            -p 8180:8080 \
-            -p 9000:9000 \
-            -e KC_HTTP_ENABLED=true \
-            -e KC_HTTPS_ENABLED=true \
-            -e KC_HTTP_PORT=8080 \
-            -e KC_HTTP_MANAGEMENT_PORT=9000 \
-            -e KC_HTTP_MANAGEMENT_INTERFACE=0.0.0.0 \
-            -e KC_HOSTNAME_STRICT=false \
-            -e KC_LOG_LEVEL=DEBUG \
-            -e KC_HOSTNAME=${{ secrets.SERVER_HOST }} \
-            -e KC_DB=postgres \
-            -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
-            -e KC_PROXY=edge \
-            -e KC_HOSTNAME_STRICT_HTTPS=false \
-            -e KC_DB_USERNAME=${{ secrets.DB_USER }} \
-            -e KC_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
+          --network keycloak-network \
+          -p 8180:8080 \
+          -p 9000:9000 \
+          -e KC_HTTP_ENABLED=true \
+          -e KC_HTTPS_ENABLED=true \
+          -e KC_HTTP_PORT=8080 \
+          -e KC_HTTP_MANAGEMENT_PORT=9000 \
+          -e KC_HTTP_MANAGEMENT_INTERFACE=0.0.0.0 \
+          -e KC_HOSTNAME_STRICT=false \
+          -e KC_LOG_LEVEL=DEBUG \
+          -e KC_HOSTNAME=*** \
+          -e KC_DB=postgres \
+          -e KC_DB_URL=jdbc:postgresql://postgres:5432/*** \
+          -e KC_PROXY=edge \
+          -e KC_BOOTSTRAP_ADMIN_USERNAME=admin
+          -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+          -e KC_HOSTNAME_STRICT_HTTPS=false \
+          -e KC_DB_USERNAME=*** \
+          -e KC_DB_PASSWORD=*** \
+          ***/keycloakrepo:latest start --optimized
+
+
 
     - name: Wait for Keycloak to be ready
       run: |
