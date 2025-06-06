@@ -83,7 +83,8 @@ jobs:
           -e KC_HOSTNAME_STRICT_HTTPS=false \
           -e KC_DB_USERNAME=*** \
           -e KC_DB_PASSWORD=*** \
-           keycloakrepo:latest start --optimized
+          ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }} start --optimized
+
 
 
 
