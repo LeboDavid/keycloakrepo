@@ -80,8 +80,6 @@ jobs:
           -e KC_DB=postgres \
           -e KC_DB_URL=jdbc:postgresql://postgres:5432/*** \
           -e KC_PROXY=edge \
-          -e KC_BOOTSTRAP_ADMIN_USERNAME=admin
-          -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin
           -e KC_HOSTNAME_STRICT_HTTPS=false \
           -e KC_DB_USERNAME=*** \
           -e KC_DB_PASSWORD=*** \
