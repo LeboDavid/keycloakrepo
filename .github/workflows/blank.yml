@@ -95,7 +95,7 @@ jobs:
         for i in {1..48}; do
           echo "Checking Keycloak health (attempt $i)..."
           if ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-          "curl -v http://${{ secrets.SERVER_HOST }}:8180/health/ready"; then
+          "curl -v http://${{ secrets.SERVER_HOST }}:9000/health/ready"; then
           echo "Keycloak is up"
           exit 0
            fi
