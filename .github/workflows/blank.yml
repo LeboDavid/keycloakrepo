@@ -66,7 +66,7 @@ jobs:
           -e DB_DATABASE=keycloakdb \
           -e DB_USER=${{secrets.DB_USER}} \
           -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
-          -e KC_DB_URL_PROPERTIES="?sslmode=require \
+          -e KC_DB_URL_PROPERTIES="?sslmode=require" \
            quay.io/keycloak/keycloak:latest \
            start-dev
           
