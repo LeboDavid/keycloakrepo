@@ -57,7 +57,7 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
-          docker run -p 8180:8080 \
+          docker run -p 8180:8181 \
           -e KEYCLOAK_ADMIN=admin \
           -e KEYCLOAK_ADMIN_PASSWORD=admin \
           -e DB_VENDOR=POSTGRES \
@@ -66,6 +66,7 @@ jobs:
           -e DB_DATABASE=keycloakdb \
           -e DB_USER=${{secrets.DB_USER}} \
           -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
+          -e KC_DB_URL_PROPERTIES="?sslmode=require
            quay.io/keycloak/keycloak:latest \
            start-dev
           
