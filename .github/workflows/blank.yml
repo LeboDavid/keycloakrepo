@@ -70,7 +70,6 @@ jobs:
           docker run -d --name keycloak \
           --network keycloak-network \
           -p 8180:8080 \
-          -p 9000:9000 \
           -e KC_HTTP_ENABLED=true \
           -e KC_HTTPS_ENABLED=true \
           -e KC_HTTP_PORT=8080 \
@@ -79,7 +78,7 @@ jobs:
           -e KC_HEALTH_ENABLED=true \
           -e KC_HOSTNAME_STRICT=false \
           -e KC_LOG_LEVEL=DEBUG \
-          -e KC_HOSTNAME=${{secrets.SERVER_HOST}} \
+          -e KC_HOSTNAME=${{secrets.SERVER_HOST}}:8180 \
           -e KC_DB=postgres \
           -e KC_DB_URL=jdbc:postgresql://postgres:5432/${{ secrets.DB_DATABASE }} \
           -e KC_PROXY=edge \
@@ -95,7 +94,7 @@ jobs:
            for i in {1..60}; do  
            echo "Checking Keycloak health (attempt $i)..."
            if ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-           "curl -v -H 'Host: ${{ secrets.SERVER_HOST }}:9000' http://${{ secrets.SERVER_HOST }}:9000/health/ready"; then
+           "curl -v -H 'Host: ${{ secrets.SERVER_HOST }}:8180' http://${{ secrets.SERVER_HOST }}:8180/health"; then
             echo "Keycloak is up"
             exit 0
             fi
