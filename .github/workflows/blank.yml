@@ -57,7 +57,7 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
-          docker run -p 8180:8181 \
+          docker run -p 8181:8181 \
           -e KEYCLOAK_ADMIN=admin \
           -e KEYCLOAK_ADMIN_PASSWORD=admin \
           -e DB_VENDOR=POSTGRES \
