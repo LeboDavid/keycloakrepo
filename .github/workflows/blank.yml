@@ -58,7 +58,9 @@ jobs:
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
           fuser -k 8180/tcp || true
-          docker run -d --name keycloak -p 8180:8080 \
+          docker stop keycloak || true
+          docker rm keycloak || true
+          docker run -d --name keycloak -p 8182:8080 \
           -e KEYCLOAK_ADMIN=admin \
           -e KEYCLOAK_ADMIN_PASSWORD=admin \
           -e DB_VENDOR=POSTGRES \
@@ -79,7 +81,7 @@ jobs:
            for i in {1..60}; do  
            echo "Checking Keycloak health (attempt $i)..."
            if ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-           "curl -v -H 'Host: ${{ secrets.SERVER_HOST }}:8180' http://${{ secrets.SERVER_HOST }}:8180/health"; then
+           "curl -v -H 'Host: ${{ secrets.SERVER_HOST }}:8182' http://${{ secrets.SERVER_HOST }}:8182/health"; then
             echo "Keycloak is up"
             exit 0
             fi
