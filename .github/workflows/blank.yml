@@ -57,8 +57,9 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
-          docker stop keycloak
-          docker rm keycloak
+          fuser -k 8180/tcp || true
+          docker stop keycloak || true
+          docker rm keycloak || true
           docker run -p 8180:8080 \
           -e KEYCLOAK_ADMIN=admin \
           -e KEYCLOAK_ADMIN_PASSWORD=admin \
