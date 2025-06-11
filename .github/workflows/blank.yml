@@ -58,8 +58,8 @@ jobs:
         key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
         script: |
           fuser -k 8180/tcp || true
-          docker stop keycloak || true
-          docker rm keycloak || true
+          docker stop quay.io/keycloak/keycloak:latest || true
+          docker rm quay.io/keycloak/keycloak:latest || true
           docker run -p 8180:8080 \
           -e KEYCLOAK_ADMIN=admin \
           -e KEYCLOAK_ADMIN_PASSWORD=admin \
