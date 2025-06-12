@@ -66,6 +66,8 @@ jobs:
           -e DB_VENDOR=POSTGRES \
           -e DB_ADDR=${{secrets.DB_HOST}} \
           -e DB_PORT=25060 \
+          -e KC_HTTP_ENABLED=true \
+          -e KC_HTTPS_ENABLED=true \
           -e DB_DATABASE=${{secrets.DB_DATABASE}} \
           -e DB_USER=${{secrets.DB_USER}} \
           -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
