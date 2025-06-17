@@ -72,7 +72,7 @@ jobs:
           -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
           -e KC_HTTP_RELATIVE_PATH=/auth \
           -e KC_DB_URL_PROPERTIES="?sslmode=require" \
-          -e KC_HOSTNAME=${{secrets.SERVER_HOST}} \
+          -e KC_HOSTNAME=${{secrets.SERVER_DEV_SUBDOMAIN}} \
            quay.io/keycloak/keycloak:latest start-dev --http-relative-path=/auth 
           
 
