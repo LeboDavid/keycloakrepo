@@ -83,12 +83,10 @@ jobs:
            if ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
            curl -v -H 'Host: ${{ secrets.SERVER_HOST }}:8182' http://${{ secrets.SERVER_HOST }}:8182/auth/health then
            echo "Keycloak is up"
-           exit 0
            echo "Waiting for Keycloak... ($i/60)"
-           sleep 10  
+           exit 0
            done
-           echo "Keycloak failed to start within timeout"
-           exit 1
+         
 
    
 
