@@ -85,7 +85,7 @@ jobs:
            echo "Keycloak is up"
            echo "Waiting for Keycloak... ($i/60)"
            exit 0
-           done
+           
          
 
    
