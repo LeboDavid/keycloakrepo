@@ -84,7 +84,6 @@ jobs:
            curl -v -H 'Host: ${{ secrets.SERVER_HOST }}:8182' http://${{ secrets.SERVER_HOST }}:8182/auth/health then
            echo "Keycloak is up"
            exit 0
-           fi
            echo "Waiting for Keycloak... ($i/60)"
            sleep 10  
            done
