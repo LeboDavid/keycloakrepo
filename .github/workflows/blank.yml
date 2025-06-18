@@ -80,8 +80,8 @@ jobs:
       run: |
            for i in {1..60}; do  
            echo "Checking Keycloak health (attempt $i)..."
-           if ssh -o StrictHostKeyChecking=no -i ~/.ssh/server_key ***@*** \
-           curl -v -H 'Host: ***:8182' http://***:8182/auth/health; then
+           if ssh -o StrictHostKeyChecking=no -i ~/.ssh/${{ secrets.SERVER_DEV_PRIVATEKEY }} ***@*** \
+           curl -v -H 'Host: ${{secrets.SERVER_DEV_SUBDOMAIN}}:8182' http://${{secrets.SERVER_DEV_SUBDOMAIN}}:8182/auth/health; then
            echo "Keycloak is up"
            exit 0
            fi
