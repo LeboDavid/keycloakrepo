@@ -50,6 +50,11 @@ jobs:
         printf '%s\n' "${{ secrets.SERVER_DEV_PRIVATEKEY }}" > ~/.ssh/server_key
         chmod 600 ~/.ssh/server_key
 
+    - name: Configure Firewall
+      run: |
+           sudo ufw allow 8182/tcp
+           sudo ufw reload
+
     - name: Deploy containers
       uses: appleboy/ssh-action@v0.1.7
       with:
