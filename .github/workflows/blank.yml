@@ -76,7 +76,7 @@ jobs:
           -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
           -e KC_DB_URL_PROPERTIES="?sslmode=require" \
           -e KC_HOSTNAME="keycloak.doosytest.co.za:8182" \
-          -e KC_PROXY=none \  # Critical change!
+          -e KC_PROXY=none \
            quay.io/keycloak/keycloak:latest start-dev
           
 
