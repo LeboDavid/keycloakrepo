@@ -82,11 +82,6 @@ jobs:
            quay.io/keycloak/keycloak:latest start-dev
           
 
-            echo "Waiting for startup..."
-            sleep 15
-            docker logs keycloak --tail 50
-            curl -I http://localhost:8182 || echo "Curl failed"
-
    
 
             
