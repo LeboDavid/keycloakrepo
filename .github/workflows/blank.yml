@@ -66,6 +66,10 @@ jobs:
          docker rm keycloak || true
          docker run -d --name keycloak -p 8182:8080 \
          -p 9000:9000 \
+         -e KC_HEALTH_ENABLED=true \
+         -e KC_METRICS_ENABLED=true \
+         -e KC_METRICS_HTTP_ENABLED=true \
+         -e KC_METRICS_HTTP_PORT=9000 \
          -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
          -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
          -e DB_VENDOR=POSTGRES \
