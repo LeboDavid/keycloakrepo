@@ -76,10 +76,12 @@ jobs:
          -e DB_ADDR=${{secrets.DB_HOST}} \
          -e DB_PORT=25060 \
          -e DB_DATABASE=${{secrets.DB_DATABASE}} \
+         -e KC_PROXY_HEADERS=xforwarded \
          -e DB_USER=${{secrets.DB_USER}} \
          -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
          -e KC_DB_URL_PROPERTIES="?sslmode=require" \
          -e KC_PROXY=edge \
+         -e KC_HOSTNAME_STRICT=false \
          -e KC_HOSTNAME="http://${{secrets.SERVER_DEV_SUBDOMAIN}}:8182" \
           quay.io/keycloak/keycloak:latest start-dev
           
