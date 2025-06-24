@@ -54,38 +54,38 @@ jobs:
       run: |
            sudo ufw allow 8182/tcp
            sudo ufw reload
-
-   - name: Deploy containers
-  uses: appleboy/ssh-action@v0.1.7
-  with:
-    host: ${{ secrets.SERVER_HOST }}
-    username: ${{ secrets.SERVER_USER }}
-    key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
-    script: |
-      docker stop keycloak || true
-      docker rm keycloak || true
-      docker run -d --name keycloak \
-        --network host \
-        -e KC_HEALTH_ENABLED=true \
-        -e KC_METRICS_ENABLED=true \
-        -e KC_METRICS_HTTP_ENABLED=true \
-        -e KC_METRICS_HTTP_PORT=9000 \
-        -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
-        -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
-        -e DB_VENDOR=POSTGRES \
-        -e DB_ADDR=${{secrets.DB_HOST}} \
-        -e DB_PORT=25060 \
-        -e DB_DATABASE=${{secrets.DB_DATABASE}} \
-        -e DB_USER=${{secrets.DB_USER}} \
-        -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
-        -e KC_DB_URL_PROPERTIES="?sslmode=require" \
-        -e KC_PROXY=edge \
-        -e KC_PROXY_HEADERS=xforwarded \
-        -e KC_HOSTNAME_STRICT=false \
-        -e KC_HTTP_BIND_ADDRESS=0.0.0.0 \
-        -e KC_HOSTNAME="keycloak.doosytest.co.za" \
-        ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }} \
-        start --optimized 
+           
+    - name: Deploy containers
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+      host: ${{ secrets.SERVER_HOST }}
+      username: ${{ secrets.SERVER_USER }}
+      key: ${{ secrets.SERVER_DEV_PRIVATEKEY }}
+      script: |
+             docker stop keycloak || true
+             docker rm keycloak || true
+             docker run -d --name keycloak \
+             --network host \
+             -e KC_HEALTH_ENABLED=true \
+             -e KC_METRICS_ENABLED=true \
+             -e KC_METRICS_HTTP_ENABLED=true \
+             -e KC_METRICS_HTTP_PORT=9000 \
+             -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+             -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+             -e DB_VENDOR=POSTGRES \
+             -e DB_ADDR=${{secrets.DB_HOST}} \
+             -e DB_PORT=25060 \
+             -e DB_DATABASE=${{secrets.DB_DATABASE}} \
+             -e DB_USER=${{secrets.DB_USER}} \
+             -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
+             -e KC_DB_URL_PROPERTIES="?sslmode=require" \
+             -e KC_PROXY=edge \
+             -e KC_PROXY_HEADERS=xforwarded \
+             -e KC_HOSTNAME_STRICT=false \
+             -e KC_HTTP_BIND_ADDRESS=0.0.0.0 \
+             -e KC_HOSTNAME=${{secrets.SERVER_DEV_SUBDOMAIN}} \
+             ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }} \
+             start --optimized 
    
 
             
