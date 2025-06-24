@@ -82,8 +82,6 @@ jobs:
          -e KC_HOSTNAME_STRICT=false \
          -e KC_HOSTNAME=${{secrets.SERVER_DEV_SUBDOMAIN}} \
           quay.io/keycloak/keycloak:latest start-dev
-          
-
    
 
             
