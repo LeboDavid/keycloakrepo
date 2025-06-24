@@ -79,7 +79,7 @@ jobs:
          -e DB_USER=${{secrets.DB_USER}} \
          -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
          -e KC_DB_URL_PROPERTIES="?sslmode=require" \
-         -e KC_PROXY=edge \
+         -e KC_PROXY=passthrough \
          -e KC_PROXY_HEADERS=xforwarded \
          -e KC_HOSTNAME_STRICT=false \
          -e KC_HTTP_BIND_ADDRESS=0.0.0.0 \
