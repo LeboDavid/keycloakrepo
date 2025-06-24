@@ -83,7 +83,7 @@ jobs:
         -e KC_PROXY_HEADERS=xforwarded \
         -e KC_HOSTNAME_STRICT=false \
         -e KC_HTTP_BIND_ADDRESS=0.0.0.0 \
-        -e KC_HOSTNAME=keycloak.doosytest.co.za \
+        -e KC_HOSTNAME="keycloak.doosytest.co.za" \
         ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }} \
         start --optimized 
    
