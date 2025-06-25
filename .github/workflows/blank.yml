@@ -71,7 +71,7 @@ jobs:
                    -e KC_HTTP_PORT=8182 \
                    -e KC_HTTP_ENABLED=true \
                    -e KC_HOSTNAME=keycloak.doosytest.co.za \
-                   -e KC_PROXY=edge \
+                   -e KC_PROXY=reencrypt \
                    -e DB_VENDOR=POSTGRES \
                    -e DB_ADDR=${{secrets.DB_HOST}} \
                    -e DB_PORT=25060 \
