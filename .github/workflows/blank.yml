@@ -65,12 +65,12 @@ jobs:
                      docker stop keycloak || true
                      docker rm keycloak || true
                      docker run -d --name keycloak \
+                     -p 8182:8080 \
                      --network host \
                      -e KC_HEALTH_ENABLED=true \
                      -e KC_METRICS_ENABLED=true \
                      -e KC_HTTP_PORT=8182 \
                      -e KC_HTTP_ENABLED=true \
-                     -e KC_HOSTNAME=keycloak.doosytest.co.za \
                      -e KC_PROXY=edge \
                      -e DB_VENDOR=POSTGRES \
                      -e DB_ADDR=${{secrets.DB_HOST}} \
