@@ -68,7 +68,6 @@ jobs:
                      --network host \
                      -e KC_HEALTH_ENABLED=true \
                      -e KC_METRICS_ENABLED=true \
-                     -e KC_HTTP_PORT=8182 \
                      -e KC_HTTP_ENABLED=true \
                      -e KC_PROXY=edge \
                      -e DB_VENDOR=POSTGRES \
