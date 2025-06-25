@@ -78,7 +78,6 @@ jobs:
                    -v /etc/ssl/keycloak:/etc/keycloak/certs \
                    -e KC_HTTPS_CERTIFICATE_FILE=/etc/keycloak/certs/fullchain.pem \
                    -e KC_HTTPS_CERTIFICATE_KEY_FILE=/etc/keycloak/certs/privkey.pem \
-                   -e KC_HTTPS_PORT=8443 \
                    -e DB_DATABASE=${{secrets.DB_DATABASE}} \
                    -e DB_USER=${{secrets.DB_USER}} \
                    -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
