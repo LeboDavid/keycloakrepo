@@ -84,8 +84,8 @@ jobs:
              -e KC_HOSTNAME_STRICT=false \
              -e KC_HTTP_BIND_ADDRESS=0.0.0.0 \
              -e KC_HOSTNAME=${{secrets.SERVER_DEV_SUBDOMAIN}} \
-             ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }} \
-             start --optimized 
+             e KC_HOSTNAME=${{secrets.SERVER_DEV_SUBDOMAIN}} \
+             quay.io/keycloak/keycloak:latest start-dev
    
 
             
