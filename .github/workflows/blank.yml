@@ -64,27 +64,21 @@ jobs:
            script: |
                    docker stop keycloak || true
                    docker rm keycloak || true
-                   docker run -d --name keycloak \
-                   --network host \
-                   -p 8182:8080 \
-                   -e KC_HEALTH_ENABLED=true \
-                   -e KC_METRICS_ENABLED=true \
-                   -e KC_HTTP_PORT=8182 \
-                   -e KC_HTTP_ENABLED=true \
-                   -e KC_HOSTNAME=keycloak.doosytest.co.za \
-                   -e KC_PROXY=reencrypt \
+                   docker run -d --name keycloak -p 8182:8080 \
+                   -e KC_HOSTNAME_STRICT=false \
+                   -e KC_PROXY_HEADERS=xforwarded \
+                   -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+                   -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
                    -e DB_VENDOR=POSTGRES \
-                   -e DB_ADDR=${{secrets.DB_HOST}} \
+                   -e DB_ADDR=${{ secrets.DB_HOST }} \
                    -e DB_PORT=25060 \
-                   -v /etc/ssl/keycloak:/etc/keycloak/certs \
-                   -e KC_HTTPS_CERTIFICATE_FILE=/etc/keycloak/certs/fullchain.pem \
-                   -e KC_HTTPS_CERTIFICATE_KEY_FILE=/etc/keycloak/certs/privkey.pem \
-                   -e DB_DATABASE=${{secrets.DB_DATABASE}} \
-                   -e DB_USER=${{secrets.DB_USER}} \
-                   -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
+                   -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
+                   -e DB_USER=${{ secrets.DB_USER }} \
+                   -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
                    -e KC_DB_URL_PROPERTIES="?sslmode=require" \
-                   ${{ env.DOCKER_HUB_REPO }}:${{ github.event.inputs.version }} \
-                    start-dev
+                   -e KC_HOSTNAME="keycloak.doosytest.co.za" \
+                   -e KC_PROXY=none \
+                    quay.io/keycloak/keycloak:latest start-dev
    
 
             
