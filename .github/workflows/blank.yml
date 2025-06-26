@@ -64,7 +64,7 @@ jobs:
             script: |
                      docker stop keycloak || true
                      docker rm keycloak || true
-                     docker run --name keycloak -p 8182:8080 \
+                     docker run -d --name keycloak -p 8182:8080 \
                      -e KC_HEALTH_ENABLED=true \
                      -e KC_METRICS_ENABLED=true \
                      -e KC_HTTP_ENABLED=true \
